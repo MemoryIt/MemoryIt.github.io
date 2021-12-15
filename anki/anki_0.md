@@ -1,5 +1,7 @@
 # 在aliyun搭建anki服务器，在多端实现anki同步
 2021-12-10
+
+2021-12-15 不要使用anki2.1调度算法
 ## 通过docker安装anki-sync-server[地址](https://github.com/ankicommunity/anki-sync-server)
 1. 从docker-hub下载anki-sync-server的docker镜像[地址](https://hub.docker.com/r/kuklinistvan/anki-sync-server)
     ```shell
@@ -100,6 +102,26 @@
     
     解决方法同ubuntu。
     
+
+## 同步测试
+
++ 使用ankidroid和桌面端修改牌组配置后，发现桌面端的anki同步失败，ankidroid仍可以进行同步。发现2.1.49版本更新中有[提到](https://github.com/ankitects/anki/releases/tag/2.1.49)：`Work around an AnkiDroid inconsistency causing deck config to be reset if options edited on AnkiDroid.`所以怀疑是在移动端编辑了牌组选项导致了这个同步失败。在anki-server中新建test用户用于测试。
++ 测试1：不修改牌组默认选项，仅使用桌面端(win&ubuntu)
+    + 在win端导入牌组，同步至服务器，在ubuntu端下载牌组。
+    + 在ubuntu端对牌组进行学习，同步学习进度到服务器，在win端从服务器同步新的学习进度，再学习几张牌组，之后同步进度到服务器。
+    + 在ubuntu端导入牌组，同步至服务器，再同步到win端。
++ 测试2：修改牌组默认选项，仅使用桌面端(win&ubuntu)
+    + win端修改，同步到ubuntu端。
+    + ubuntu端修改，同步到win端。
++ 测试3：使用anki 2.1 调度算法
+    + 同步失败，看来这个docker镜像不能使用anki2.1调度算法。
++ 测试4：仅使用2.0调度算法，在三端同步。
+    + 同步成功。
++ 测试5：使用2.0调度算法，分别更改牌组选项设置，在三端同步。
+    + 同步成功。
+
+
+结论：anki2.1调度算法导致了这个问题，桌面端不要使用 [Anki 2.1 scheduler算法](https://faqs.ankiweb.net/the-anki-2.1-scheduler.html)，android端不要勾选实验性V2调度器。
 
 ## 参考
 1. https://github.com/ankicommunity/anki-sync-server
